@@ -1,0 +1,68 @@
+baseURL = "https://krtffl.dev"
+theme = "risotto"
+
+
+title = "krtffl.dev"
+author = "krtffl@krtffl.dev"
+copyright = "© [krtffl](https://krtffl.dev)"
+
+languageCode = "en"
+DefaultContentLanguage = "en"
+enableInlineShortcodes = true
+
+# automatically add content sections to main menu
+sectionPagesMenu = "main"
+
+[params]
+noindex = false
+
+[params.theme]
+palette = "tokyo-night-dark"
+
+
+# sidebar: about/bio
+[params.about]
+title = "krtffl.dev"
+description = "a journey into becoming a 10x engineer"
+# unicode/emoji logo:
+# logo = "🍚"
+# or use an image:
+#logo_image = "images/rice.svg"
+
+# sidebar: social links
+[[params.socialLinks]]
+icon = "fa-brands fa-github"
+title = "GitHub"
+url = "https://github.com/krtffl"
+
+
+[[params.socialLinks]]
+icon = "fa-solid fa-envelope"
+title = "Email"
+url = "mailto:krtffl@krtffl.dev"
+
+
+[menu]
+
+[[menu.main]]
+identifier = "about"
+name = "About"
+url = "/about/"
+weight = 10
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+series = "series"
+
+# [markup.goldmark.renderer]
+# unsafe = true
+
+[markup]
+
+# Table of contents
+# Add toc = true to content front matter to enable
+[markup.tableOfContents]
+startLevel = 2
+endLevel = 3
+ordered = true
