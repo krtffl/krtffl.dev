@@ -1,7 +1,10 @@
 +++
 title = "about"
 description = "why is this here? i don't know"
-aliases = ["about", "about-me", "contact"]
+aliases = [
+    "about",
+    "contact",
+]
 +++
 
 i kind of already spoiled it but yeah, i studied physics. it wasn't enough so i decided to study chemistry as well. graduated from both simultaneously and eventually decided i didn't like those fields and i better switch to software engineering obecause it is common knowledge there is a bunch of girls doing software - haha, got you! 
@@ -14,7 +17,7 @@ then i realized - as i was wearing a full head to toe adidas outfit - adidas had
 
 some more javascript, lots of agile, never ending doses of agile, some bureaucracy, some shoes. a decent amount of shoes. and shirts. and caps. and shorts. and then  breaking the whole product exchange service worldwide for a weekend. 
 
-then i realized go (the programming language, this is not a verb ho ere otherwise the sentence wouldn't have much sense) was pretty awesome. simpler than javascript. more performant than javascript. so just **better** than javascript.
+then i realized go (the programming language, this is not a verb here otherwise the sentence woulnd't have much sense) was pretty awesome. simpler than javascript. more performant than javascript. so just **better** than javascript.
 
 i tried to get something going within the company but you know, germans, plus it's a freakingly huge company, so nothing came out of that. and hey, the best way to learn something is to just throw yourself head first into a wall till you get into the platform 9 3/4.o
 

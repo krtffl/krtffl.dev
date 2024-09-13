@@ -7,13 +7,21 @@
     <generator>Hugo</generator>
     <language>en</language>
     <copyright>© [krtffl](https://krtffl.dev)</copyright>
+    <lastBuildDate>Fri, 13 Sep 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>the meta post</title>
+      <link>http://localhost:1313/posts/meta/</link>
+      <pubDate>Fri, 13 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/meta/</guid>
+      <description>&lt;p&gt;this is probably the post that makes the least sense of all but i still need to get some practice before i get into business and dive deep into the technicalities so here it is&lt;/p&gt;</description>
+    </item>
     <item>
       <title>about</title>
       <link>http://localhost:1313/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/about/</guid>
-      <description>&lt;p&gt;i kind of already spoiled it but yeah, i studied physics. it wasn&amp;rsquo;t enough so i decided to study chemistry as well. graduated from both simultaneously and eventually decided i didn&amp;rsquo;t like those fields and i better switch to software engineering because it is common knowledge there is a bunch of girls doing software - haha, got you!&lt;/p&gt;&#xA;&lt;p&gt;honestly it looked fun. it looked like software engineering never has enough of itself, and that resonates with me in some level. so yeah i took a bootcamp like everybody does with the difference i was actually somewhat good, so it got me a job - also a friend got me a job, he was actually the one that got it for me, but you know, it&amp;rsquo;s nice to say it is because of the bootcamp anyway - so i started coding.&lt;/p&gt;</description>
+      <description>&lt;p&gt;i kind of already spoiled it but yeah, i studied physics. it wasn&amp;rsquo;t enough so i decided to study chemistry as well. graduated from both simultaneously and eventually decided i didn&amp;rsquo;t like those fields and i better switch to software engineering obecause it is common knowledge there is a bunch of girls doing software - haha, got you!&lt;/p&gt;&#xA;&lt;p&gt;honestly it looked fun. it looked like software engineering never has enough of itself, and that resonates with me on some level. so yeah i took a bootcamp like everybody does with the difference i was actually somewhat good, so it got me a job - also a friend got me a job, he was actually the one that got it for me, but you know, it&amp;rsquo;s nice to say it is because of the bootcamp anyway - so i started coding.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
