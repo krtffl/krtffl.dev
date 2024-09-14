@@ -11,6 +11,7 @@ categories = [
     "meta",
     "blog",
 ]
+toc = true
 +++
 
 this is probably the post that makes the least sense of all but i still need to get some practice before i get into business and dive deep into the technicalities so here it is 

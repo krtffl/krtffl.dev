@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Testing on krtffl.dev</title>
+    <link>http://localhost:1313/categories/testing/</link>
+    <description>Recent content in Testing on krtffl.dev</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© [krtffl](https://krtffl.dev)</copyright>
+    <lastBuildDate>Sat, 14 Sep 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/testing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>test containers</title>
+      <link>http://localhost:1313/posts/testcontainers/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/testcontainers/</guid>
+      <description>&lt;p&gt;it was about time to start seeing some code in this (supposedly) blog that shows how i become a 10x engineer. one might start to think the fastest approach to 10x your skills is to stop writing code, but i assure you that is not the case.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
