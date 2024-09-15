@@ -15,19 +15,23 @@ categories = [
 toc = true
 +++
 
-it was about time to start seeing some code in this (supposedly) blog that shows how i become a 10x engineer. one might start to think the fastest approach to 10x your skills is to stop writing code, but i assure you that is not the case. 
+well, it was about time to start writgim some code in this - supposedly - blog that shows how i become a 10x engineer. one might start to think the fastest approach to do it is to stop writing code. no way.
 
 <!--more-->
 
-the happy path for me to start showing some code is then to talk about the latest stuff i have been playing with, which turns to be **[testcontainers](https://testcontainers.com/)**. that is actually quite nice because testcontainers are the real deal. awesome. i used to hate writing integration test. now i still hate it but i am found of testcontainers. i have said it too much in this sentence no? testcontainers. testcontainers. 
+i want to talk about the latest stuff i have been playing with, which turns out to be **[testcontainers](https://testcontainers.com/)**. that is actually quite nice because testcontainers are the real deal. awesome. i used to hate writing integration tests. now i still hate it, but i am fond of testcontainers. i have said it too much in this sentence no? testcontainers. testcontainers. 
 
-i feel like andy the first time he got its buzz lightyear - now it would be awesome to add a picture to illustrate the phrase, that is something people like when reading stuff right? sadly i don't think i can stick up a frame of a pixar movie in here. you'll have to imagine it. i mean, everyone has seen toy story multiple times so it won't be hard. 
+i feel like andy on his birthday party when he got his buzz lightyear - now it would be awesome to add a picture to illustrate the phrase, that is something people like when reading stuff right? sadly i don't think i can stick up a frame of a pixar movie in here. you'll have to imagine it. i mean, everyone has seen toy story multiple times so it won't be hard. 
 
-well, actually let me draw it for you because i need that you reeeally picture it and understand how cool testcontainers are. ok i swear i won't use the word anymore.
+ actually 
+
+ let me draw it for you because i need that you _reeeally_ picture it and understand how cool testcontainers are. ok i swear i won't use the word anymore - for a while.
 
  {{< figure src="/images/andy_happy.jpg" title="andy super happy because he got buzz" width="350">}} 
 
-i am really sorry but i needed to do that. alright, now, to have some consistency let me see how i structured the previous post... ok got it.
+i am really sorry but i needed to do that. you get it now. we are back on the same page.
+
+alright now to have some consistency let me see how i structured the previous post... ok got it. start with some bullet points
 
 - what are tests?
 - do we even need to test?
@@ -39,24 +43,20 @@ you now what tests are. the pyramid. tests are very useful, very helpful, blah, 
 
 ### i don't want to test!!
 
-do tests. even if you have qa. _do not ever trust a qa._ trust your code to test your code, not a person. not people. and please, not the end user.
+me neither. 
 
-i just want to say something brief here and is more as a reminder to me than anything else. tests really help you out and sometimes - sometimes - you won't break your prod environment thanks to a test, but they are no saving net unless you write good tests. even though.
+do tests. even if you have qa. _do not ever trust a qa._ trust your code to test your code, not a person. not people. and please not the end user.
+
+tests really help you out and sometimes - sometimes - you won't break your prod environment thanks to a test, but they are no saving net unless you write good tests. even though you do, they barely are.
 
 > go ahead and write shit code, but at least do good tests. 
 
-i can recall about 4 or 5 times where i deployed a bug into a production enviroment when i was working at adidas. we had about 75% coverage throughout the entire codebase. 
-
-about 2 of them where breaking some functionality in our application. huge impact
+i can recall about 4 or 5 times where i deployed a bug into a production enviroment when i was working at adidas. about 2 of them were breaking some functionality in our application. huge impact honestly
 
 - allowed users to make returns/exchanges after the exchange period
 - broke the entire exchange use case 
 
-this was worldwide. to all adidas customers. 
-
-and as always, the fix were a couple of lines of code. it is very easy to overlook stuff.
-
-with well-thought tests than actually tested functionality, we would have noticed it. 
+this was worldwide. to all adidas customers. the latter lasted a whole weekend. and as always the fix were a couple of lines of code. it is very easy to overlook stuff.
 
 ### wasn't this about testcontainers?
 
@@ -68,14 +68,13 @@ integration tests are the ones that save you from a call at 3AM from your boss, 
 
 bascially they are gonna spin up docker containers for your dependencies so that you can run yours tests agains them, and in the end it will be like nothing happened. so, no mocks. no sqlite to test my database connections. real containers with the same images that you are running.
 
-
  {{< figure src="/images/testcontainers_flow.png" title="testcontainers workflow" width="700">}} 
 
-and they support just a bunch of languages by the way. and also have ready to go containers for a bunch of the most common dependencies so you can just plug and play: cassandra, postgresql, kafka, minio, redis...
+testcontainers support a bunch of languages by the way and they also have ready to go containers for most common dependencies so that you can just plug and play: cassandra, postgresql, kafka, minio, redis...
 
 ### testcontainers in action
 
-i simply have a postgresql for now and i will test my repository layer for one of my entities. if you want to test a more complex setup, there is a nice post here ([integration testing using testcontainers, shaibu shaibu](https://volomn.com/blog/integration-testing-in-go-using-testcontainers)) with both a postgresql and a redis. the idea is the same. 
+for this demonstration i will set up a basic golang API with a postgresql database, and will test the interaction with it in my repository layer. for a  more complex setup there is a nice post here ([integration testing using testcontainers, shaibu shaibu](https://volomn.com/blog/integration-testing-in-go-using-testcontainers)) with both a postgresql and a redis. the idea is the same. 
 
 #### domain entities
 
@@ -92,12 +91,12 @@ type Dojo struct {
 	Email       string    `json:"email,omitempty"`       // optional
 	FoundedDate time.Time `json:"foundedDate,omitempty"` // optional
 }
-
 ```
 
-i like to differentiate between my domain entities and my database models, but for this simple example i will use the entity directly.
+i like to differentiate between my domain entities and my database models, but for this simple example the entity will suffice. i try to avoid gorm struct tags as much as possible, as often i see the structs overloaded with tags that are actually not helping at all. 
 
 #### define interface 
+
 ```go
 var (
 	ErrCreateDojo = errors.New("coulnd't create dojo")
@@ -116,14 +115,13 @@ type DojoRepository interface {
 }
 ```
 
-and i define the interface that we will need to satisfy in our repositories. as i said in this case i will use a postgresql so 
+and i define the interface that describes the interaction with any database that we want to use.
 
 #### implement repository
 
 > `internal/infra/postgresql/dojo.go`
 
-and as you will be familiar
-
+initialize the repository
 ```go
 type DojoRepository struct {
 	db *gorm.DB
@@ -138,9 +136,9 @@ func NewDojoRepository(
 }
 ```
 
-and we define the methods as described in the interface. case you are wondering why am i using [gorm](https://gorm.io/), often it gives me headaches but for simple querying it is indeed really helpful.
-
+and define the methods as described in the interface. in case you are wondering why am i using [gorm](https://gorm.io/), often it gives me headaches but for simple querying it is indeed really helpful.
 ```go
+
 func (instance *DojoRepository) Get(entityID string) (*domain.Dojo, error) {
 	var model *domain.Dojo
 	if err := instance.db.
@@ -159,9 +157,11 @@ func (instance *DojoRepository) Get(entityID string) (*domain.Dojo, error) {
 }
 ```
 
-also slightly off topic but i want my repository layer to already return a mapped error, with the error identified defined in the domain as well. sometimes i just log the err details here, and return the domain error instead, but i find context is missing when the error is eventually returned to the user.
+also slightly off topic but i want my repository layer to already return a domain-defined error and its context. sometimes i just log the err details here, and return the domain error instead, but i find context is missing when the error is eventually returned to the user.
 
+of course it goes down to how much information you want to display to the user. here, assume as much as possible will make our lifes easier.
 ```go
+
 func (repo *DojoRepository) List(
 	filter *domain.DojoFilter,
 ) ([]*domain.Dojo, error) {
@@ -180,7 +180,7 @@ func (repo *DojoRepository) List(
 }
 ```
 
-the order could be handled differently but who cares. and in case you want to see the function that manages the filters, it is pretty straightforward
+naturally, the order could be handled differently but who cares. 
 
 ```go
 func manageDojoFilters(query *gorm.DB, filter *domain.DojoFilter) *gorm.DB {
@@ -193,8 +193,8 @@ func manageDojoFilters(query *gorm.DB, filter *domain.DojoFilter) *gorm.DB {
 ```
 
 for this scenario it doesn't really matter but lately i've been following this approach where i define a struct with the fields which can be filtered, and then apply them programmatically when their values are not null. 
-
 ```go
+
 func (repo *DojoRepository) Create(entity *domain.Dojo) (
     *domain.Dojo, error) {
 	if err := repo.db.Create(&entity).Error; err != nil {
@@ -209,7 +209,10 @@ func (repo *DojoRepository) Create(entity *domain.Dojo) (
 	return entity, nil
 }
 ```
+
+i don't like to have much logs printing information that will give no value, but i still like to keep the debug ones in case they are needed.
 ```go
+
 func (repo *DojoRepository) Update(
 	entityID string,
 	entity *domain.Dojo,
@@ -243,7 +246,10 @@ func (repo *DojoRepository) Update(
 	return model, nil
 }
 ```
+
+fetching the updated record is of course not necessary here. i like to keep it in case my relationships increase in complexity and i need to preload some associations.
 ```go
+
 func (repo *DojoRepository) Delete(entityID string) error {
 	var model *domain.Dojo
 	if err := repo.db.
@@ -262,5 +268,276 @@ func (repo *DojoRepository) Delete(entityID string) error {
 }
 ```
 
+i verify that the entity to be deleted exists before calling the repository, so whenever this method is invoked i already now for sure there is an entity with the given ID.
+
 #### testcontainers in action (now for real)
+
+> `internal/infra/postgresql/dojo_test.go`
+
+make sure to install the packages
+
+```bash
+go get github.com/stretchr/testify
+go get github.com/testcontainers/testcontainers-go
+go get github.com/testcontainers/testcontainers-go/modules/postgres
+```
+
+and the idea is to leverage the testify suite
+
+```go
+type DojoRepositoryTestSuite struct {
+	suite.Suite
+	ctx                context.Context
+	db                 *gorm.DB
+	dbContainer        *postgres.PostgresContainer
+	dbConnectionString string
+}
+```
+
+- to set up the testcontainer before the suite runs
+
+```go
+func (suite *DojoRepositoryTestSuite) SetupSuite() {
+	suite.ctx = context.Background()
+
+    // the image can be specified
+    // together with the db name, user and password
+	dbContainer, err := postgres.Run(
+		suite.ctx,
+		"postgres:16.4",
+		postgres.WithDatabase("mojodojo-test"),
+		postgres.WithUsername("postgres"),
+		postgres.WithPassword("postgres"),
+        // the wait strategy makes sure the execution
+        // waits until the container is ready
+		testcontainers.WithWaitStrategy(
+			wait.
+				ForLog("database system is ready to accept connections").
+				WithOccurrence(2).
+				WithStartupTimeout(5*time.Second),
+		),
+	)
+
+	suite.NoError(err)
+
+    // plus we get the connection string to the testcontainer database
+	connStr, err := dbContainer.ConnectionString(suite.ctx, "sslmode=disable")
+	suite.NoError(err)
+
+	db, err := gorm.Open(pg.Open(connStr), &gorm.Config{})
+	suite.NoError(err)
+
+	suite.dbContainer = dbContainer
+	suite.dbConnectionString = connStr
+	suite.db = db
+
+	sqlDB, err := suite.db.DB()
+	suite.NoError(err)
+
+	err = sqlDB.Ping()
+	suite.NoError(err)
+}
+```
+
+- to make sure they are terminated at the end of the suite
+
+```go
+func (suite *DojoRepositoryTestSuite) TearDownSuite() {
+	err := suite.dbContainer.Terminate(suite.ctx)
+	suite.NoError(err)
+}
+```
+
+- to setup the database before each test execution
+
+basically run the migrations. i want the database in the same state that it would be if i had the application running. there are options to specify the migrations when the container is run, but i like this approach more.
+
+```go
+func (suite *DojoRepositoryTestSuite) SetupTest() {
+	sqlDB, err := suite.db.DB()
+	suite.NoError(err)
+
+	driver, err := psqlMigrate.WithInstance(sqlDB, &psqlMigrate.Config{})
+	suite.NoError(err)
+
+	d, err := iofs.New(mojodojo.Migrations, "migrations")
+	suite.NoError(err)
+
+	m, err := migrate.NewWithInstance(
+		"iofs",
+		d,
+		"postgres",
+		driver,
+	)
+	suite.NoError(err)
+
+	err = m.Up()
+	suite.NoError(err)
+}
+```
+
+- to tear the database down after each test execution
+
+each test should run against a clean slate, so just migrate all the way down the database after each test execution to make sure nothing is left hanging.
+
+```go
+func (suite *DojoRepositoryTestSuite) TearDownTest() {
+	sqlDB, err := suite.db.DB()
+	suite.NoError(err)
+
+	driver, err := psqlMigrate.WithInstance(sqlDB, &psqlMigrate.Config{})
+	suite.NoError(err)
+
+	d, err := iofs.New(mojodojo.Migrations, "migrations")
+	suite.NoError(err)
+
+	m, err := migrate.NewWithInstance(
+		"iofs",
+		d,
+		"postgres",
+		driver,
+	)
+	suite.NoError(err)
+
+	err = m.Down()
+	suite.NoError(err)
+}
+```
+
+it might seem like a bunch of code but the idea is simple and the setup functions will do for all repository integration tests.
+
+```go
+func (suite *DojoRepositoryTestSuite) TestCreate() {
+	// ensure database is empty
+	var models []*domain.Dojo
+	result := suite.db.Find(&models)
+
+	suite.NoError(result.Error)
+	suite.Equal(0, len(models))
+
+	repo := NewDojoRepository(suite.db)
+
+    // create the entity 
+	entity, err := domain.NewDojo(
+		"TestCreateDojo",
+		"",
+		"",
+		"",
+		"",
+	)
+	suite.NoError(err)
+
+	created, err := repo.Create(&entity)
+	suite.NoError(err)
+
+	// ensure a new entity has been added
+	result = suite.db.Find(&models)
+	suite.NoError(result.Error)
+	suite.Equal(1, len(models))
+	suite.Equal(created.ID, models[0].ID)
+	suite.Equal(created.Name, models[0].Name)
+	suite.Equal(created.Address, models[0].Address)
+	suite.Equal(created.Phone, models[0].Phone)
+	suite.Equal(created.Email, models[0].Email)
+	suite.Equal(created.FoundedDate, models[0].FoundedDate)
+}
+```
+
+all methods can be tested in a similar fashion. use the db directly to perform previous and aftermath checks, and use the repository to perform the action that is being tested.
+
+```go
+func (suite *DojoRepositoryTestSuite) TestUpdate() {
+	// ensure database is empty
+	var models []*domain.Dojo
+	result := suite.db.Find(&models)
+	suite.NoError(result.Error)
+	suite.Equal(0, len(models))
+
+	// add an entity
+	entity := &domain.Dojo{
+		ID:   uuid.NewString(),
+		Name: "TestUpdateDojo",
+	}
+
+	result = suite.db.Save(&entity)
+	suite.NoError(result.Error)
+
+	// ensure an entity has been added
+	var model *domain.Dojo
+	result = suite.db.First(&model)
+	suite.NoError(result.Error)
+	suite.NotZero(model)
+
+	repo := NewDojoRepository(suite.db)
+
+	model.Name = "Dunder Miffllin"
+	model.Email = "michael.scott@dundermifflin.com"
+
+	updated, err := repo.Update(model.ID, model)
+	suite.NoError(err)
+
+	// ensure entity has been updated
+	result = suite.db.First(&model)
+	suite.Equal(updated.ID, model.ID)
+	suite.Equal(updated.Name, model.Name)
+	suite.Equal(updated.Address, model.Address)
+	suite.Equal(updated.Phone, model.Phone)
+	suite.Equal(updated.Email, model.Email)
+	suite.Equal(updated.FoundedDate, model.FoundedDate)
+}
+```
+
+the rest are easy to follow. 
+
+for the tests to run, the suite needs to be run
+
+```go
+func TestDojoRepository(t *testing.T) {
+	suite.Run(t, new(DojoRepositoryTestSuite))
+}
+```
+
+and that'll be it. 
+
+#### i can't run it!! 
+
+if you are using rancher desktop - just like i am -  you might face an issue when running the tests: [the testcontainer doesn't start properly.](https://github.com/rancher-sandbox/rancher-desktop/issues/2609). you'll need to enable administrative access 
+
+{{< figure src="/images/rancher_desktop.png" title="rancher desktop: enable administrative access" width="700">}} 
+
+and provide the port of the virtual machine explicitly
+
+```bash
+export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show rd0 | awk '/inet / {sub("/.*",""); print $2}')
+```
+
+{{< figure src="/images/rancher_desktop_emulation.png" title="rancher desktop: emulation virtual machine type" width="700">}} 
+
+if VZ emulation is being used instead of QEMU, it is slightly different
+
+```bash
+export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show vznat | awk '/inet / {sub("/.*",""); print $2}')
+```
+
+for more details refer to the github issue, [the rancher desktop documentation](https://docs.rancherdesktop.io/how-to-guides/using-testcontainers/) or [the testcontainers documentation](https://golang.testcontainers.org/system_requirements/rancher/).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
