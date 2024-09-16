@@ -33,9 +33,9 @@ from scratch it is then!
 ai ai ai ai ai ai ai ai ai ai 
 ai
 ai ai ai
-ai (no idea how this is gonna print out, i am obviously not using any kind of live previewer and the most markdown i've written is for the changelogs of my projects...  so we will see!) is everywhere. eveything. articial inteligence. which is of course not intelligent as we (i) are, but i still had to look up whether intelligence had one or two l. turns out it had 2. so a big L for me :) 
+ai (no idea how this is gonna print out, i am obviously not using any kind of live previewer and the most markdown i've written is for the changelogs of my projects...  so we will see!) is everywhere. everything. artificial inteligence. which is of course not intelligent as we (i) are, but i still had to look up whether intelligence had one or two l. turns out it had 2. so a big L for me :) 
 
-so, artifical intelligence, you need to know python. you *better* know python if you wanna keep some chances at keeping your job. go build your boring blog in python.
+so, artificial intelligence, you need to know python. you *better* know python if you wanna keep some chances at keeping your job. go build your boring blog in python.
 
 what about django? it sounds cool. i really liked the movie and of course i judge a book by its cover, and a film by its name, so let's go with it. i started following a couple of articles that i found informative enough
 
@@ -48,13 +48,13 @@ by the way, it turns out django is quite nice, it has some built-in administrati
 
 however it looked U G L Y as F U C K. and that is actually my problem with everything. it is not the funcionality (sometimes) or getting it running (often) but the looks of it (always). 
 
-put in the trash then.  
+put it in the trash then.  
 
-(yes i considered adding some tailwind maybe, play with the css and the classes, but that it's just so much time and i knew i woulnd't even get it pretty anyway)
+(yes i considered adding some tailwind maybe, play with the css and the classes, but that is  just so much time and i knew i woulnd't even get it pretty anyway)
 
 ### second try: copy a repo
 
-for this there is again a bunch of options however i really (sadly) know that i need to step up - actually, start - my react game. everything is react when it comes the visually appealing applications and i need to get into that cult before it is too late. it is too late already but, you know, even more too late.
+there is again a bunch of options however i really (sadly) know that i need to step up - actually, start - my react game. everything is react when it comes the visually appealing applications and i need to get into that cult before it is too late. it is too late already but, you know, even more too late.
 
 from scracth it was not an option. no no no no no. not for this. maybe for some other application i will need to do it, but not for the blog please. i cannot spend 3 weeks starting and discarding projects until i finally get the blog running.
 
@@ -62,9 +62,11 @@ so i came across the [tailwind nextjs starter blog](https://github.com/timlrx/ta
 
 so i clone the repo, play with it, edit some information. but no.
 
-it is huge. there is a hundreds (maybe not but sounds better than tens) of files in there, and i don't wanna overcomplicate it. who the hell is gonna wanna subscribe to my newsletter? i don't even want to write a newsletter! 
+it is huge. there are hundreds (maybe not but sounds better than tens) of files in there, and i don't wanna overcomplicate it. who the hell is gonna wanna subscribe to my newsletter? i don't even want to write a newsletter! 
 
-honestly i don't even remember anymore if the newsletter option comes out of the box, but you get it. when you have a big nextjs blog with all that javascript running there, it is asking for the newsletter. and the comment sections and all that stuff than involves user participation and i don't like people. plus it looks really sad when there are not comments, or no users that want to get your newsletter. 
+honestly i don't even remember anymore if the newsletter option comes out of the box, but you get it. when you have a big nextjs blog with all that javascript running there, it is asking for the newsletter. and the comment sections and all that stuff that involves user participation and i don't like people.
+
+plus it looks really sad when there are not comments, or no users that want to get your newsletter. 
 
 screw it then.
 
@@ -74,7 +76,7 @@ after discarding the nextjs starter, i went back to the repo and read its descri
 
 > perfect as a replacement to existing Jekyll and Hugo individual blogs
 >> replacement to existing Jekyll and Hugo individual blogs
->>> Hugo 
+>>> **Hugo**
 
 yep. i will walk this way in reverse. i knew about [hugo](https://gohugo.io/), the static site generator which is actually written in go. i didn't know about jekyll so i checked that out too. 
 
@@ -84,11 +86,13 @@ i found a couple that i liked but eventually as one can infer by simply reading 
 
 i had never used hugo before but i figured it would be quite easy and it was. great documentation, great configuration options, so i just started a new project, set the theme, and configured it based on the risotto especifications and that is about it.
 
-i could get into the commands that i used and everything but honestly it is perfectly clear and well written on their pages.
+i could get into the commands that i used and everything but honestly it is perfectly clear and well written on their documentation.
 
 then i checked what was the easiest way to deploy a hugo generated static site and of course cloudflare - who doesn't like cloudflare? they are like, the best - makes the life easy for you with [basically two-click automatic deployment](https://developers.cloudflare.com/pages/framework-guides/deploy-a-hugo-site/).
 
 and that is about it
+
+i push changes into my repo and seconds later: released to the world
 
 ### fourth try: conclusion?
 
