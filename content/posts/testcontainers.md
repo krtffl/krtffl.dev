@@ -1,7 +1,7 @@
 +++
-title = "testcontainers"
-date = 2024-09-14
-draft = true
+title = "testcontainers 101"
+date = 2024-09-15
+draft = false
 description = "testing: the real deal"
 tags = [
     "go",
@@ -12,14 +12,22 @@ categories = [
     "testing",
     "testcontainers",
 ]
+series = ["testcontainers"]
 toc = true
 +++
 
-well, it was about time to start writgim some code in this - supposedly - blog that shows how i become a 10x engineer. one might start to think the fastest approach to do it is to stop writing code. no way.
+well, it was about time to start writing some code in this - supposedly - blog that shows how i become a 10x engineer. one might start to think the fastest approach to do it is to stop writing code. no way.
 
 <!--more-->
 
-i want to talk about the latest stuff i have been playing with, which turns out to be **[testcontainers](https://testcontainers.com/)**. that is actually quite nice because testcontainers are the real deal. awesome. i used to hate writing integration tests. now i still hate it, but i am fond of testcontainers. i have said it too much in this sentence no? testcontainers. testcontainers. 
+i want to talk about the latest stuff i have been playing with, which turns out to be **[testcontainers](https://testcontainers.com/)**. that is actually quite nice because testcontainers are the real deal. awesome.
+
+i (used to) hate writing integration tests. now i still hate it - in case you hadn't notice the parenthesis - but i am fond of testcontainers. 
+
+have i said it too much in this last few sentences? testcontainers. 
+
+testcontainers. 
+
 
 i feel like andy on his birthday party when he got his buzz lightyear - now it would be awesome to add a picture to illustrate the phrase, that is something people like when reading stuff right? sadly i don't think i can stick up a frame of a pixar movie in here. you'll have to imagine it. i mean, everyone has seen toy story multiple times so it won't be hard. 
 
@@ -27,7 +35,7 @@ i feel like andy on his birthday party when he got his buzz lightyear - now it w
 
  let me draw it for you because i need that you _reeeally_ picture it and understand how cool testcontainers are. ok i swear i won't use the word anymore - for a while.
 
- {{< figure src="/images/andy_happy.jpg" title="andy super happy because he got buzz" width="350">}} 
+ {{< figure src="/images/andy_happy.jpg" title="andy super happy because he got buzz. i really am sorry" width="350">}} 
 
 i am really sorry but i needed to do that. you get it now. we are back on the same page.
 
@@ -49,7 +57,7 @@ do tests. even if you have qa. _do not ever trust a qa._ trust your code to test
 
 tests really help you out and sometimes - sometimes - you won't break your prod environment thanks to a test, but they are no saving net unless you write good tests. even though you do, they barely are.
 
-> go ahead and write shit code, but at least do good tests. 
+> **go ahead and write shit code, but at least do good tests.** 
 
 i can recall about 4 or 5 times where i deployed a bug into a production enviroment when i was working at adidas. about 2 of them were breaking some functionality in our application. huge impact honestly
 
@@ -62,13 +70,13 @@ this was worldwide. to all adidas customers. the latter lasted a whole weekend. 
 
 ok so testcontainers are really cool because you can just write integration tests soooo easily. 
 
-integration tests are the ones that save you from a call at 3AM from your boss, but so often are such a pain in the ass to write. you need the database, or a database, and to set it up... and how the hell do i do that?
+integration tests are the ones that save you from a call at 3AM from your boss, but so often are such a pain in the ass to write. you need the database, or a database, dependencies, set everything up... and how the hell do i do that?
 
-> testcontainers
+> **testcontainers**
 
-bascially they are gonna spin up docker containers for your dependencies so that you can run yours tests agains them, and in the end it will be like nothing happened. so, no mocks. no sqlite to test my database connections. real containers with the same images that you are running.
+bascially they are gonna spin up docker containers for your dependencies so that you can run your tests against  them, and in the end it will be like nothing happened. so, no mocks. no sqlite to test my database connections. real containers with the same images that you are running.
 
- {{< figure src="/images/testcontainers_flow.png" title="testcontainers workflow" width="700">}} 
+ {{< figure src="/images/testcontainers_flow.png" title="testcontainers workflow. nice, huh?" width="700">}} 
 
 testcontainers support a bunch of languages by the way and they also have ready to go containers for most common dependencies so that you can just plug and play: cassandra, postgresql, kafka, minio, redis...
 
@@ -91,11 +99,47 @@ type Dojo struct {
 	Email       string    `json:"email,omitempty"`       // optional
 	FoundedDate time.Time `json:"foundedDate,omitempty"` // optional
 }
+
+func NewDojo(
+	name,
+	address,
+	phone,
+	email,
+	foundedDate string,
+) (Dojo, error) {
+	if err := validation.Validate(name, validation.StringNotEmpty); err != nil {
+		return Dojo{}, err
+	}
+
+	var date time.Time
+	if strings.TrimSpace(foundedDate) != "" {
+		if err := validation.Validate(foundedDate, validation.ValidDate); err != nil {
+			return Dojo{}, err
+		}
+
+		date, _ = time.Parse(time.DateOnly, foundedDate)
+	}
+
+	return Dojo{
+		ID:          uuid.NewString(),
+		Name:        name,
+		Address:     address,
+		Phone:       phone,
+		Email:       email,
+		FoundedDate: date,
+	}, nil
+}
 ```
 
-i like to differentiate between my domain entities and my database models, but for this simple example the entity will suffice. i try to avoid gorm struct tags as much as possible, as often i see the structs overloaded with tags that are actually not helping at all. 
+i like to differentiate between my domain entities and my database models, but for this simple example the entity will suffice. 
+
+i try to avoid gorm struct tags as much as possible as usually i see the structs get overloaded with tags that are actually not helping at all. 
 
 #### define interface 
+
+in the same file
+
+> `internal/domain/dojo.go`
 
 ```go
 var (
@@ -115,13 +159,14 @@ type DojoRepository interface {
 }
 ```
 
-and i define the interface that describes the interaction with any database that we want to use.
+i define the interface that describes the interaction with any database that we want to use.
 
 #### implement repository
 
+initialize the repository
+
 > `internal/infra/postgresql/dojo.go`
 
-initialize the repository
 ```go
 type DojoRepository struct {
 	db *gorm.DB
@@ -136,9 +181,9 @@ func NewDojoRepository(
 }
 ```
 
-and define the methods as described in the interface. in case you are wondering why am i using [gorm](https://gorm.io/), often it gives me headaches but for simple querying it is indeed really helpful.
-```go
+and define the methods as described in the interface. in case you are wondering why am i using [gorm](https://gorm.io/), even though it often gives me headaches ~~i'm lazy~~ for simple querying it is indeed really helpful.
 
+```go
 func (instance *DojoRepository) Get(entityID string) (*domain.Dojo, error) {
 	var model *domain.Dojo
 	if err := instance.db.
@@ -157,11 +202,13 @@ func (instance *DojoRepository) Get(entityID string) (*domain.Dojo, error) {
 }
 ```
 
-also slightly off topic but i want my repository layer to already return a domain-defined error and its context. sometimes i just log the err details here, and return the domain error instead, but i find context is missing when the error is eventually returned to the user.
+also slightly off topic but i want my repository layer to already return a domain-defined error and its context. 
+
+sometimes i just log the err details here, and return the domain error instead, but i find context is missing when the error is eventually returned to the user.
 
 of course it goes down to how much information you want to display to the user. here, assume as much as possible will make our lifes easier.
-```go
 
+```go
 func (repo *DojoRepository) List(
 	filter *domain.DojoFilter,
 ) ([]*domain.Dojo, error) {
@@ -270,9 +317,11 @@ func (repo *DojoRepository) Delete(entityID string) error {
 
 i verify that the entity to be deleted exists before calling the repository, so whenever this method is invoked i already now for sure there is an entity with the given ID.
 
+actually gorm will work the same way whether the entity exists or not when doing deletes, but i want to avoid pointless query
+
 #### testcontainers in action (now for real)
 
-> `internal/infra/postgresql/dojo_test.go`
+ok so now it is about time for the juicy juice
 
 make sure to install the packages
 
@@ -282,8 +331,14 @@ go get github.com/testcontainers/testcontainers-go
 go get github.com/testcontainers/testcontainers-go/modules/postgres
 ```
 
-and the idea is to leverage the testify suite
+and the idea is to leverage the testify suite so 
 
+- SetupSuite() to run before the suite does
+- TearDownSuite() to run after the suite does
+- SetupTest() to run before each test does
+- TearDownTest() to run after each test does
+
+> `internal/infra/postgresql/dojo_test.go`
 ```go
 type DojoRepositoryTestSuite struct {
 	suite.Suite
@@ -294,7 +349,7 @@ type DojoRepositoryTestSuite struct {
 }
 ```
 
-- to set up the testcontainer before the suite runs
+so set up the testcontainer before the suite runs
 
 ```go
 func (suite *DojoRepositoryTestSuite) SetupSuite() {
@@ -339,7 +394,7 @@ func (suite *DojoRepositoryTestSuite) SetupSuite() {
 }
 ```
 
-- to make sure they are terminated at the end of the suite
+and make sure the testcontainer is terminated at the end
 
 ```go
 func (suite *DojoRepositoryTestSuite) TearDownSuite() {
@@ -348,9 +403,9 @@ func (suite *DojoRepositoryTestSuite) TearDownSuite() {
 }
 ```
 
-- to setup the database before each test execution
+then setup the database. basically run the migrations. i want the database in the same state that it would be if i had the application running. and for every test. 
 
-basically run the migrations. i want the database in the same state that it would be if i had the application running. there are options to specify the migrations when the container is run, but i like this approach more.
+there are options to specify setup file on container initialization, but i like this approach more.
 
 ```go
 func (suite *DojoRepositoryTestSuite) SetupTest() {
@@ -376,7 +431,7 @@ func (suite *DojoRepositoryTestSuite) SetupTest() {
 }
 ```
 
-- to tear the database down after each test execution
+and tear the database down after each test execution.
 
 each test should run against a clean slate, so just migrate all the way down the database after each test execution to make sure nothing is left hanging.
 
@@ -404,7 +459,9 @@ func (suite *DojoRepositoryTestSuite) TearDownTest() {
 }
 ```
 
-it might seem like a bunch of code but the idea is simple and the setup functions will do for all repository integration tests.
+it might seem like a bunch of code but the idea is simple and the setup functions can be refactored into, e.g. `internal/common/testhelpers/` for them to be reused at every suite (spoiler: coming in part 2!!)
+
+all in all,
 
 ```go
 func (suite *DojoRepositoryTestSuite) TestCreate() {
@@ -417,13 +474,14 @@ func (suite *DojoRepositoryTestSuite) TestCreate() {
 
 	repo := NewDojoRepository(suite.db)
 
-    // create the entity 
+    // create the entity using the constructor
+    // this is what my use case will do
 	entity, err := domain.NewDojo(
-		"TestCreateDojo",
-		"",
-		"",
-		"",
-		"",
+		"my cool ass dojo",
+		"42 Wallaby Way",
+        "",
+		"p.sherman@crueldentists.com",
+		"2003/11/28",
 	)
 	suite.NoError(err)
 
@@ -443,7 +501,9 @@ func (suite *DojoRepositoryTestSuite) TestCreate() {
 }
 ```
 
-all methods can be tested in a similar fashion. use the db directly to perform previous and aftermath checks, and use the repository to perform the action that is being tested.
+all methods can be tested in a similar fashion. 
+
+i like using the db directly (that is why i add it to the suite struct)  to perform previous and aftermath checks. 
 
 ```go
 func (suite *DojoRepositoryTestSuite) TestUpdate() {
@@ -453,10 +513,11 @@ func (suite *DojoRepositoryTestSuite) TestUpdate() {
 	suite.NoError(result.Error)
 	suite.Equal(0, len(models))
 
-	// add an entity
+	// add an entity. now there is no need to use
+    // the constructor as we are querying the db directly
 	entity := &domain.Dojo{
 		ID:   uuid.NewString(),
-		Name: "TestUpdateDojo",
+		Name: "my cool ass dojo",
 	}
 
 	result = suite.db.Save(&entity)
@@ -470,8 +531,8 @@ func (suite *DojoRepositoryTestSuite) TestUpdate() {
 
 	repo := NewDojoRepository(suite.db)
 
-	model.Name = "Dunder Miffllin"
-	model.Email = "michael.scott@dundermifflin.com"
+	model.Name = "Sherman"
+	model.Email = "sherman.69@crueldentists.com"
 
 	updated, err := repo.Update(model.ID, model)
 	suite.NoError(err)
@@ -487,9 +548,9 @@ func (suite *DojoRepositoryTestSuite) TestUpdate() {
 }
 ```
 
-the rest are easy to follow. 
+the rest are easy to follow, i'll leave it as an exercise for the reader (i have wanted to say this since college, feels good!!)
 
-for the tests to run, the suite needs to be run
+of course if you try and run the tests at this point nothing will happen because for the tests to run, the suite needs to be run
 
 ```go
 func TestDojoRepository(t *testing.T) {
@@ -497,30 +558,30 @@ func TestDojoRepository(t *testing.T) {
 }
 ```
 
-and that'll be it. 
+and **now** that'll be it. 
 
-#### i can't run it!! 
 
-if you are using rancher desktop - just like i am -  you might face an issue when running the tests: [the testcontainer doesn't start properly.](https://github.com/rancher-sandbox/rancher-desktop/issues/2609). you'll need to enable administrative access 
+#### if you're using rancher desktop it's too late
 
-{{< figure src="/images/rancher_desktop.png" title="rancher desktop: enable administrative access" width="700">}} 
+if you are using rancher desktop - just like i am -  you might face an issue with the testcontainer initialization. 
 
-and provide the port of the virtual machine explicitly
-
-```bash
-export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show rd0 | awk '/inet / {sub("/.*",""); print $2}')
-```
-
-{{< figure src="/images/rancher_desktop_emulation.png" title="rancher desktop: emulation virtual machine type" width="700">}} 
-
-if VZ emulation is being used instead of QEMU, it is slightly different
+refer to [the rancher desktop documentation](https://docs.rancherdesktop.io/how-to-guides/using-testcontainers/) and make sure [apache maven](https://maven.apache.org/install.html) is installed on your machine to make use of 
 
 ```bash
-export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show vznat | awk '/inet / {sub("/.*",""); print $2}')
+mvn verify
 ```
 
-for more details refer to the github issue, [the rancher desktop documentation](https://docs.rancherdesktop.io/how-to-guides/using-testcontainers/) or [the testcontainers documentation](https://golang.testcontainers.org/system_requirements/rancher/).
+if you are also running apple silicon then refer to the [the testcontainers documentation](https://golang.testcontainers.org/system_requirements/rancher/). 
 
+### conclusion
+
+again, bunch of text. now a whole bunch of test. so conclusion is mandatory.
+
+- testcontainers are awesomeee
+- rancher desktop wants to make our lives harder
+- only testing simple, success scenarios is enough! 
+
+in part 2 i'll do some refactor to the test helpers, add testing for the failure scenarios and maybe, maybe add end to end testing as well. 
 
 
 

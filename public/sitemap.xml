@@ -3,34 +3,40 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>http://localhost:1313/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/go/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/go/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/posts/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/series/</loc>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/posts/testcontainers/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/series/testcontainers/</loc>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/testcontainers/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/testing/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/testing/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2024-09-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/blog/</loc>
     <lastmod>2024-09-13T00:00:00+00:00</lastmod>
@@ -48,7 +54,5 @@
     <lastmod>2024-09-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/about/</loc>
-  </url><url>
-    <loc>http://localhost:1313/series/</loc>
   </url>
 </urlset>
