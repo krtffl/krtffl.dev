@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><title>testcontainers 101 &ndash; krtffl.dev</title>
+<meta name="description" content="a journey into becoming a 10x engineer">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8"/>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.4/css/academicons.min.css" integrity="sha512-IW0nhlW5MgNydsXJO40En2EoCkTTjZhI3yuODrZIc8cQ4h1XcF53PsqDHa09NqnkXuIe0Oiyyj171BqZFwISBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+<link rel="stylesheet" href="http://localhost:1313/css/palettes/tokyo-night-dark.css">
+<link rel="stylesheet" href="http://localhost:1313/css/risotto.css">
+<link rel="stylesheet" href="http://localhost:1313/css/custom.css">
+
+
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="manifest" href="http://localhost:1313/site.webmanifest">
+</head>
+
+    <body>
+        <div class="page">
+
+            <header class="page__header"><nav class="page__nav main-nav">
+    <ul>
+    <h1 class="page__logo"><a href="http://localhost:1313/" class="page__logo-inner">krtffl.dev</a></h1>
+    
+    
+    <li class="main-nav__item"><a class="nav-main-item" href="http://localhost:1313/about/" title="">About</a></li>
+    
+    <li class="main-nav__item"><a class="nav-main-item active" href="http://localhost:1313/posts/" title="posts">posts</a></li>
+    
+    </ul>
+</nav>
+
+</header>
+
+            <section class="page__body">
+    <header class="content__header">
+        <h1>testcontainers 101</h1>
+    </header>
+    <div class="content__body">
+        <p>well, it was about time to start writing some code in this - supposedly - blog that shows how i become a 10x engineer. one might start to think the fastest approach to do it is to stop writing code. no way.</p>
+<p>i want to talk about the latest stuff i have been playing with, which turns out to be <strong><a href="https://testcontainers.com/">testcontainers</a></strong>. that is actually quite nice because testcontainers are the real deal. awesome.</p>
+<p>i (used to) hate writing integration tests. now i still hate it - in case you hadn&rsquo;t notice the parenthesis - but i am fond of testcontainers.</p>
+<p>have i said it too much in this last few sentences? testcontainers.</p>
+<p>testcontainers.</p>
+<p>i feel like andy on his birthday party when he got his buzz lightyear - now it would be awesome to add a picture to illustrate the phrase, that is something people like when reading stuff right? sadly i don&rsquo;t think i can stick up a frame of a pixar movie in here. you&rsquo;ll have to imagine it. i mean, everyone has seen toy story multiple times so it won&rsquo;t be hard.</p>
+<p>actually</p>
+<p>let me draw it for you because i need that you <em>reeeally</em> picture it and understand how cool testcontainers are. ok i swear i won&rsquo;t use the word anymore - for a while.</p>
+<figure><img src="/images/andy_happy.jpg" width="350"><figcaption>
+       <h4>andy super happy because he got buzz. i really am sorry</h4>
+     </figcaption>
+ </figure>
+
+<p>i am really sorry but i needed to do that. you get it now. we are back on the same page.</p>
+<p>alright now to have some consistency let me see how i structured the previous post&hellip; ok got it. start with some bullet points</p>
+<ul>
+<li>what are tests?</li>
+<li>do we even need to test?</li>
+<li>why are <del>testc-</del> they cool?</li>
+</ul>
+<h3 id="tests">tests???</h3>
+<p>you now what tests are. the pyramid. tests are very useful, very helpful, blah, blah, blah.</p>
+<h3 id="i-dont-want-to-test">i don&rsquo;t want to test!!</h3>
+<p>me neither.</p>
+<p>do tests. even if you have qa. <em>do not ever trust a qa.</em> trust your code to test your code, not a person. not people. and please not the end user.</p>
+<p>tests really help you out and sometimes - sometimes - you won&rsquo;t break your prod environment thanks to a test, but they are no saving net unless you write good tests. even though you do, they barely are.</p>
+<blockquote>
+<p><strong>go ahead and write shit code, but at least do good tests.</strong></p>
+</blockquote>
+<p>i can recall about 4 or 5 times where i deployed a bug into a production enviroment when i was working at adidas. about 2 of them were breaking some functionality in our application. huge impact honestly</p>
+<ul>
+<li>allowed users to make returns/exchanges after the exchange period</li>
+<li>broke the entire exchange use case</li>
+</ul>
+<p>this was worldwide. to all adidas customers. the latter lasted a whole weekend. and as always the fix were a couple of lines of code. it is very easy to overlook stuff.</p>
+<h3 id="wasnt-this-about-testcontainers">wasn&rsquo;t this about testcontainers?</h3>
+<p>ok so testcontainers are really cool because you can just write integration tests soooo easily.</p>
+<p>integration tests are the ones that save you from a call at 3AM from your boss, but so often are such a pain in the ass to write. you need the database, or a database, dependencies, set everything up&hellip; and how the hell do i do that?</p>
+<blockquote>
+<p><strong>testcontainers</strong></p>
+</blockquote>
+<p>bascially they are gonna spin up docker containers for your dependencies so that you can run your tests against  them, and in the end it will be like nothing happened. so, no mocks. no sqlite to test my database connections. real containers with the same images that you are running.</p>
+<figure><img src="/images/testcontainers_flow.png" width="700"><figcaption>
+       <h4>testcontainers workflow. nice, huh?</h4>
+     </figcaption>
+ </figure>
+
+<p>testcontainers support a bunch of languages by the way and they also have ready to go containers for most common dependencies so that you can just plug and play: cassandra, postgresql, kafka, minio, redis&hellip;</p>
+<h3 id="testcontainers-in-action">testcontainers in action</h3>
+<p>for this demonstration i will set up a basic golang API with a postgresql database, and will test the interaction with it in my repository layer. for a  more complex setup there is a nice post here (<a href="https://volomn.com/blog/integration-testing-in-go-using-testcontainers">integration testing using testcontainers, shaibu shaibu</a>) with both a postgresql and a redis. the idea is the same.</p>
+<h4 id="domain-entities">domain entities</h4>
+<p>i define my entities in my domain layer</p>
+<blockquote>
+<p><code>internal/domain/dojo.go</code></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Dojo</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ID</span>          <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;id&#34;`</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Name</span>        <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;name&#34;`</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Address</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;address,omitempty&#34;`</span>     <span style="color:#75715e">// optional
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">Phone</span>       <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;phone,omitempty&#34;`</span>       <span style="color:#75715e">// optional
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">Email</span>       <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;email,omitempty&#34;`</span>       <span style="color:#75715e">// optional
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">FoundedDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`json:&#34;foundedDate,omitempty&#34;`</span> <span style="color:#75715e">// optional
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewDojo</span>(
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">name</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">address</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">phone</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">email</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">foundedDate</span> <span style="color:#66d9ef">string</span>,
+</span></span><span style="display:flex;"><span>) (<span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">validation</span>.<span style="color:#a6e22e">Validate</span>(<span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">validation</span>.<span style="color:#a6e22e">StringNotEmpty</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Dojo</span>{}, <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">date</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">TrimSpace</span>(<span style="color:#a6e22e">foundedDate</span>) <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">validation</span>.<span style="color:#a6e22e">Validate</span>(<span style="color:#a6e22e">foundedDate</span>, <span style="color:#a6e22e">validation</span>.<span style="color:#a6e22e">ValidDate</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Dojo</span>{}, <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">date</span>, <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Parse</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">DateOnly</span>, <span style="color:#a6e22e">foundedDate</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Dojo</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">ID</span>:          <span style="color:#a6e22e">uuid</span>.<span style="color:#a6e22e">NewString</span>(),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Name</span>:        <span style="color:#a6e22e">name</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Address</span>:     <span style="color:#a6e22e">address</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Phone</span>:       <span style="color:#a6e22e">phone</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Email</span>:       <span style="color:#a6e22e">email</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">FoundedDate</span>: <span style="color:#a6e22e">date</span>,
+</span></span><span style="display:flex;"><span>	}, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>i like to differentiate between my domain entities and my database models, but for this simple example the entity will suffice.</p>
+<p>i try to avoid gorm struct tags as much as possible as usually i see the structs get overloaded with tags that are actually not helping at all.</p>
+<h4 id="define-interface">define interface</h4>
+<p>in the same file</p>
+<blockquote>
+<p><code>internal/domain/dojo.go</code></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ErrCreateDojo</span> = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;coulnd&#39;t create dojo&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ErrUpdateDojo</span> = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;coulnd&#39;t update dojo&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ErrDeleteDojo</span> = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;coulnd&#39;t delete dojo&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ErrGetDojo</span>    = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;coulnd&#39;t find dojo&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ErrListDojos</span>  = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;coulnd&#39;t list dojos&#34;</span>)
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">DojoRepository</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Create</span>(<span style="color:#a6e22e">entity</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Dojo</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">ID</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">entity</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Dojo</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Delete</span>(<span style="color:#a6e22e">ID</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">ID</span> <span style="color:#66d9ef">string</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">List</span>(<span style="color:#a6e22e">filter</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoFilter</span>) ([]<span style="color:#f92672">*</span><span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>i define the interface that describes the interaction with any database that we want to use.</p>
+<h4 id="implement-repository">implement repository</h4>
+<p>initialize the repository</p>
+<blockquote>
+<p><code>internal/infra/postgresql/dojo.go</code></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">DojoRepository</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">db</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">DB</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewDojoRepository</span>(
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">db</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">DB</span>,
+</span></span><span style="display:flex;"><span>) <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">DojoRepository</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">DojoRepository</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">db</span>: <span style="color:#a6e22e">db</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>and define the methods as described in the interface. in case you are wondering why am i using <a href="https://gorm.io/">gorm</a>, even though it often gives me headaches <del>i&rsquo;m lazy</del> for simple querying it is indeed really helpful.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">instance</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepository</span>) <span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">entityID</span> <span style="color:#66d9ef">string</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">model</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">db</span>.
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Where</span>(<span style="color:#e6db74">&#34;id = ?&#34;</span>, <span style="color:#a6e22e">entityID</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">First</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">model</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Error</span>; <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%v: %v&#34;</span>, <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">ErrGetDojo</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Error</span>())
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">e</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Debug</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;Fetched dojo: %+v&#34;</span>, <span style="color:#a6e22e">model</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">model</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>also slightly off topic but i want my repository layer to already return a domain-defined error and its context.</p>
+<p>sometimes i just log the err details here, and return the domain error instead, but i find context is missing when the error is eventually returned to the user.</p>
+<p>of course it goes down to how much information you want to display to the user. here, assume as much as possible will make our lifes easier.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">repo</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepository</span>) <span style="color:#a6e22e">List</span>(
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">filter</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">DojoFilter</span>,
+</span></span><span style="display:flex;"><span>) ([]<span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">models</span> []<span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">manageDojoFilters</span>(<span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">filter</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Order</span>(<span style="color:#e6db74">&#34;Name&#34;</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Find</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">models</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Error</span>; <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%v: %v&#34;</span>, <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">ErrListDojos</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Error</span>())
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">e</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Debug</span>(<span style="color:#e6db74">&#34;Fetched %d dojos with %+v&#34;</span>, len(<span style="color:#a6e22e">models</span>), <span style="color:#a6e22e">filter</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">models</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>naturally, the order could be handled differently but who cares.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">manageDojoFilters</span>(<span style="color:#a6e22e">query</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">DB</span>, <span style="color:#a6e22e">filter</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">DojoFilter</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">DB</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">TrimSpace</span>(<span style="color:#a6e22e">filter</span>.<span style="color:#a6e22e">Name</span>) <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">query</span> = <span style="color:#a6e22e">query</span>.<span style="color:#a6e22e">Where</span>(<span style="color:#e6db74">&#34;dojos.name = ?&#34;</span>, <span style="color:#a6e22e">filter</span>.<span style="color:#a6e22e">Name</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">query</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>for this scenario it doesn&rsquo;t really matter but lately i&rsquo;ve been following this approach where i define a struct with the fields which can be filtered, and then apply them programmatically when their values are not null.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">repo</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepository</span>) <span style="color:#a6e22e">Create</span>(<span style="color:#a6e22e">entity</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>) (
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">entity</span>).<span style="color:#a6e22e">Error</span>; <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%v: %v&#34;</span>, <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">ErrCreateDojo</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Error</span>())
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">e</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Debug</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;Dojo created: %+v&#34;</span>, <span style="color:#a6e22e">entity</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">entity</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>i don&rsquo;t like to have much logs printing information that will give no value, but i still like to keep the debug ones in case they are needed.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">repo</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepository</span>) <span style="color:#a6e22e">Update</span>(
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">entityID</span> <span style="color:#66d9ef">string</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">entity</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>,
+</span></span><span style="display:flex;"><span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">model</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">db</span>.
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Model</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">model</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Where</span>(<span style="color:#e6db74">&#34;id = ?&#34;</span>, <span style="color:#a6e22e">entityID</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Updates</span>(<span style="color:#a6e22e">entity</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Error</span>; <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%v: %v&#34;</span>, <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">ErrUpdateDojo</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Error</span>())
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">e</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Debug</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;Dojo updated: %+v&#34;</span>, <span style="color:#a6e22e">entity</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">db</span>.
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Where</span>(<span style="color:#e6db74">&#34;id = ?&#34;</span>, <span style="color:#a6e22e">entityID</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">First</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">model</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Error</span>; <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%v: %v&#34;</span>, <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">ErrUpdateDojo</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Error</span>())
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">e</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Debug</span>(<span style="color:#e6db74">&#34;[DojoRepository] - [UpdateDojo] &#34;</span><span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;Fetched updated dojo: %+v&#34;</span>, <span style="color:#a6e22e">model</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">model</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>fetching the updated record is of course not necessary here. i like to keep it in case my relationships increase in complexity and i need to preload some associations.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">repo</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepository</span>) <span style="color:#a6e22e">Delete</span>(<span style="color:#a6e22e">entityID</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">model</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">db</span>.
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Where</span>(<span style="color:#e6db74">&#34;id = ?&#34;</span>, <span style="color:#a6e22e">entityID</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Delete</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">model</span>).
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Error</span>; <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%v: %v&#34;</span>, <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">ErrDeleteDojo</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Error</span>())
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">e</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Debug</span>(<span style="color:#e6db74">&#34;[DojoRepository] - [DeleteDojo] &#34;</span><span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;Dojo deleted: %+v&#34;</span>, <span style="color:#a6e22e">model</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>i verify that the entity to be deleted exists before calling the repository, so whenever this method is invoked i already now for sure there is an entity with the given ID.</p>
+<p>actually gorm will work the same way whether the entity exists or not when doing deletes, but i want to avoid pointless query</p>
+<h4 id="testcontainers-in-action-now-for-real">testcontainers in action (now for real)</h4>
+<p>ok so now it is about time for the juicy juice</p>
+<p>make sure to install the packages</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>go get github.com/stretchr/testify
+</span></span><span style="display:flex;"><span>go get github.com/testcontainers/testcontainers-go
+</span></span><span style="display:flex;"><span>go get github.com/testcontainers/testcontainers-go/modules/postgres
+</span></span></code></pre></div><p>and the idea is to leverage the testify suite so</p>
+<ul>
+<li>SetupSuite() to run before the suite does</li>
+<li>TearDownSuite() to run after the suite does</li>
+<li>SetupTest() to run before each test does</li>
+<li>TearDownTest() to run after each test does</li>
+</ul>
+<blockquote>
+<p><code>internal/infra/postgresql/dojo_test.go</code></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">DojoRepositoryTestSuite</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Suite</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ctx</span>                <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">db</span>                 <span style="color:#f92672">*</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">DB</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">dbContainer</span>        <span style="color:#f92672">*</span><span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">PostgresContainer</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">dbConnectionString</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>so set up the testcontainer before the suite runs</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">SetupSuite</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">ctx</span> = <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// the image can be specified
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// together with the db name, user and password
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">dbContainer</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">Run</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">ctx</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;postgres:16.4&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">WithDatabase</span>(<span style="color:#e6db74">&#34;mojodojo-test&#34;</span>),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">WithUsername</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">WithPassword</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>),
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// the wait strategy makes sure the execution
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// waits until the container is ready
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">WithWaitStrategy</span>(
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">wait</span>.
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">ForLog</span>(<span style="color:#e6db74">&#34;database system is ready to accept connections&#34;</span>).
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">WithOccurrence</span>(<span style="color:#ae81ff">2</span>).
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">WithStartupTimeout</span>(<span style="color:#ae81ff">5</span><span style="color:#f92672">*</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>),
+</span></span><span style="display:flex;"><span>		),
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// plus we get the connection string to the testcontainer database
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">connStr</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">dbContainer</span>.<span style="color:#a6e22e">ConnectionString</span>(<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">ctx</span>, <span style="color:#e6db74">&#34;sslmode=disable&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#a6e22e">pg</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#a6e22e">connStr</span>), <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">Config</span>{})
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">dbContainer</span> = <span style="color:#a6e22e">dbContainer</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">dbConnectionString</span> = <span style="color:#a6e22e">connStr</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span> = <span style="color:#a6e22e">db</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sqlDB</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">sqlDB</span>.<span style="color:#a6e22e">Ping</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>and make sure the testcontainer is terminated at the end</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">TearDownSuite</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">dbContainer</span>.<span style="color:#a6e22e">Terminate</span>(<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">ctx</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>then setup the database. basically run the migrations. i want the database in the same state that it would be if i had the application running. and for every test.</p>
+<p>there are options to specify setup file on container initialization, but i like this approach more.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">SetupTest</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sqlDB</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">driver</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">WithInstance</span>(<span style="color:#a6e22e">sqlDB</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">Config</span>{})
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">d</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">iofs</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">mojodojo</span>.<span style="color:#a6e22e">Migrations</span>, <span style="color:#e6db74">&#34;migrations&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">m</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">migrate</span>.<span style="color:#a6e22e">NewWithInstance</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;iofs&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">d</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;postgres&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">driver</span>,
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Up</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>and tear the database down after each test execution.</p>
+<p>each test should run against a clean slate, so just migrate all the way down the database after each test execution to make sure nothing is left hanging.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">TearDownTest</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sqlDB</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">driver</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">WithInstance</span>(<span style="color:#a6e22e">sqlDB</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">Config</span>{})
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">d</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">iofs</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">mojodojo</span>.<span style="color:#a6e22e">Migrations</span>, <span style="color:#e6db74">&#34;migrations&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">m</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">migrate</span>.<span style="color:#a6e22e">NewWithInstance</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;iofs&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">d</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;postgres&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">driver</span>,
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Down</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>it might seem like a bunch of code but the idea is simple and the setup functions can be refactored into, e.g. <code>internal/common/testhelpers/</code> for them to be reused at every suite (spoiler: coming in part 2!!)</p>
+<p>all in all,</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">TestCreate</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ensure database is empty
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">models</span> []<span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">models</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#ae81ff">0</span>, len(<span style="color:#a6e22e">models</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">repo</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewDojoRepository</span>(<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// create the entity using the constructor
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// this is what my use case will do
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">entity</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">NewDojo</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;my cool ass dojo&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;42 Wallaby Way&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;p.sherman@crueldentists.com&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;2003/11/28&#34;</span>,
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">created</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">entity</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ensure a new entity has been added
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">result</span> = <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">models</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#ae81ff">1</span>, len(<span style="color:#a6e22e">models</span>))
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">created</span>.<span style="color:#a6e22e">ID</span>, <span style="color:#a6e22e">models</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">ID</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">created</span>.<span style="color:#a6e22e">Name</span>, <span style="color:#a6e22e">models</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">Name</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">created</span>.<span style="color:#a6e22e">Address</span>, <span style="color:#a6e22e">models</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">Address</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">created</span>.<span style="color:#a6e22e">Phone</span>, <span style="color:#a6e22e">models</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">Phone</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">created</span>.<span style="color:#a6e22e">Email</span>, <span style="color:#a6e22e">models</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">Email</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">created</span>.<span style="color:#a6e22e">FoundedDate</span>, <span style="color:#a6e22e">models</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">FoundedDate</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>all methods can be tested in a similar fashion.</p>
+<p>i like using the db directly (that is why i add it to the suite struct)  to perform previous and aftermath checks.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">TestUpdate</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ensure database is empty
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">models</span> []<span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">models</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#ae81ff">0</span>, len(<span style="color:#a6e22e">models</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// add an entity. now there is no need to use
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// the constructor as we are querying the db directly
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">entity</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">ID</span>:   <span style="color:#a6e22e">uuid</span>.<span style="color:#a6e22e">NewString</span>(),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">Name</span>: <span style="color:#e6db74">&#34;my cool ass dojo&#34;</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">result</span> = <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Save</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">entity</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ensure an entity has been added
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">model</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">result</span> = <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">First</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">model</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NotZero</span>(<span style="color:#a6e22e">model</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">repo</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewDojoRepository</span>(<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">Name</span> = <span style="color:#e6db74">&#34;Sherman&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">Email</span> = <span style="color:#e6db74">&#34;sherman.69@crueldentists.com&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">updated</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">ID</span>, <span style="color:#a6e22e">model</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ensure entity has been updated
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">result</span> = <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">First</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">model</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">updated</span>.<span style="color:#a6e22e">ID</span>, <span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">ID</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">updated</span>.<span style="color:#a6e22e">Name</span>, <span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">Name</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">updated</span>.<span style="color:#a6e22e">Address</span>, <span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">Address</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">updated</span>.<span style="color:#a6e22e">Phone</span>, <span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">Phone</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">updated</span>.<span style="color:#a6e22e">Email</span>, <span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">Email</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">updated</span>.<span style="color:#a6e22e">FoundedDate</span>, <span style="color:#a6e22e">model</span>.<span style="color:#a6e22e">FoundedDate</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>the rest are easy to follow, i&rsquo;ll leave it as an exercise for the reader (i have wanted to say this since college, feels good!!)</p>
+<p>of course if you try and run the tests at this point nothing will happen because for the tests to run, the suite needs to be run</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestDojoRepository</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Run</span>(<span style="color:#a6e22e">t</span>, new(<span style="color:#a6e22e">DojoRepositoryTestSuite</span>))
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>and <strong>now</strong> that&rsquo;ll be it.</p>
+<h4 id="if-youre-using-rancher-desktop-its-too-late">if you&rsquo;re using rancher desktop it&rsquo;s too late</h4>
+<p>if you are using rancher desktop - just like i am -  you might face an issue with the testcontainer initialization.</p>
+<p>refer to <a href="https://docs.rancherdesktop.io/how-to-guides/using-testcontainers/">the rancher desktop documentation</a> and make sure <a href="https://maven.apache.org/install.html">apache maven</a> is installed on your machine to make use of</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mvn verify
+</span></span></code></pre></div><p>if you are also running apple silicon then refer to the <a href="https://golang.testcontainers.org/system_requirements/rancher/">the testcontainers documentation</a>.</p>
+<h3 id="conclusion">conclusion</h3>
+<p>again, bunch of text. now a whole bunch of test. so conclusion is mandatory.</p>
+<ul>
+<li>testcontainers are awesomeee</li>
+<li>rancher desktop wants to make our lives harder</li>
+<li>only testing simple, success scenarios is enough!</li>
+</ul>
+<p>in part 2 i&rsquo;ll do some refactor to the test helpers, add testing for the failure scenarios and maybe, maybe add end to end testing as well.</p>
+    </div>
+    <footer class="content__footer"></footer>
+
+            </section>
+
+            <section class="page__aside">
+                <div class="aside__about">
+<div class="aside__about">
+    
+<h1 class="about__title">krtffl.dev</h1>
+<p class="about__description">a journey into becoming a 10x engineer</p>
+</div>
+
+
+<ul class="aside__social-links">
+    
+    <li>
+        <a href="https://github.com/krtffl" rel="me" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>&nbsp;
+    </li>
+    
+    <li>
+        <a href="mailto:krtffl@krtffl.dev" rel="me" aria-label="Email" title="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>&nbsp;
+    </li>
+    
+</ul>
+</div>
+                <hr>
+                <div class="aside__content">
+    <p>testing: the real deal</p>
+    
+        <p>
+            
+            2024-09-15
+        </p>
+    
+
+    
+	    <hr>
+	    on this page:
+	    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#tests">tests???</a></li>
+    <li><a href="#i-dont-want-to-test">i don&rsquo;t want to test!!</a></li>
+    <li><a href="#wasnt-this-about-testcontainers">wasn&rsquo;t this about testcontainers?</a></li>
+    <li><a href="#testcontainers-in-action">testcontainers in action</a>
+      <ol>
+        <li><a href="#domain-entities">domain entities</a></li>
+        <li><a href="#define-interface">define interface</a></li>
+        <li><a href="#implement-repository">implement repository</a></li>
+        <li><a href="#testcontainers-in-action-now-for-real">testcontainers in action (now for real)</a></li>
+        <li><a href="#if-youre-using-rancher-desktop-its-too-late">if you&rsquo;re using rancher desktop it&rsquo;s too late</a></li>
+      </ol>
+    </li>
+    <li><a href="#conclusion">conclusion</a></li>
+  </ol>
+</nav>
+    
+
+                </div>
+            </section>
+
+            <footer class="page__footer"><p>
+    
+    
+    
+    
+    
+    
+      
+    
+      
+    
+    
+    
+      
+      
+          
+            
+            
+
+            
+          
+      
+    
+</p>
+<br /><br />
+<p class="copyright">© <a href="https://krtffl.dev">krtffl</a></p>
+<p class="advertisement">Powered by <a href="https://gohugo.io/">hugo</a> and <a href="https://github.com/joeroe/risotto">risotto</a>.</p>
+</footer>
+
+        </div>
+    </body>
+
+</html>

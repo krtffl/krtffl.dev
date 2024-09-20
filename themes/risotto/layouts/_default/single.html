@@ -17,6 +17,13 @@
         </p>
     {{ end }}
 
+   {{ with .Params.series }}
+        {{ $series := index . 0 }}
+        {{ with $.Site.GetPage (printf "/series/%s" ($series | urlize)) }}
+            <p>part of the <a href="{{ .Permalink }}">{{ $series }}</a> series</p>
+        {{ end }}
+    {{ end }}
+
     {{ if and (.Params.toc) (.TableOfContents) }}
 	    <hr>
 	    on this page:
