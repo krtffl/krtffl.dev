@@ -49,8 +49,165 @@
         <h1>testcontainers 102</h1>
     </header>
     <div class="content__body">
-        <p>well, it was about time to start writing some code in this - supposedly - blog that shows how i become a 10x engineer. one might start to think the fastest approach to do it is to stop writing code. no way.</p>
-<p>i want to talk about the latest stuff i have been playing with, which turns out to be <strong><a href="https://testcontainers.com/">testcontainers</a></strong>. that is actually quite nice because testcontainers are the real deal. awesome.</p>
+        <p>alright. so the last post was a simple introduction to testcontainers: what are they, how to set it up, how to run a couple integration tests against a database&hellip; it was quite good for an introduction, but there were of course things missing.</p>
+<p>this means that basically i have been playing around with them some more and i&rsquo;ve decided to</p>
+<p>i. make some changes on the setup and the structure,</p>
+<p>ii. add more scenarios to the test.</p>
+<p>and now if i look back, well -  don&rsquo;t ever look back at the code you&rsquo;ve written. it&rsquo;ll look like shit.</p>
+<h3 id="if-youre-running-rancher-desktop-its-too-late-part-2">if you&rsquo;re running rancher desktop it&rsquo;s too late part 2</h3>
+<p>before anything else: running testcontainers on rancher desktop it&rsquo;s starting to bother the shit out of me.</p>
+<p>sometimes they spin up perfectly. sometimes they are stuck and for whatever reason decide not to run, make me waste my time and then timeout after a couple of minutes.</p>
+<p><a href="https://github.com/rancher-sandbox/rancher-desktop/issues/2609">i&rsquo;ve read the issue multiple times back and forth</a> and i still don&rsquo;t understand what is going on. moral of the story? why the fuck are we using macOS?</p>
+<p>i&rsquo;ve had no issue running them on my fedora laptop so my approach for now is just to stop using the mac when i want to have some cool ass testcontainers on my project.</p>
+<h3 id="introducing-test-helpers">introducing: test helpers</h3>
+<p>i kind of gave the idea way on part 1 so let&rsquo;s start with that.</p>
+<p><code>internal/common/testhelpers/containers.go</code></p>
+<p>refactor the container setup</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">PostgreSQLContainer</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">*</span><span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">PostgresContainer</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ConnectionString</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">CreatePostgreSQLContainer</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">PostgreSQLContainer</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">pgContainer</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">Run</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">ctx</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;postgres:16.4&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">WithDatabase</span>(<span style="color:#e6db74">&#34;mojodojo-test&#34;</span>),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">WithUsername</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">postgres</span>.<span style="color:#a6e22e">WithPassword</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">testcontainers</span>.<span style="color:#a6e22e">WithWaitStrategy</span>(
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">wait</span>.
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">ForLog</span>(<span style="color:#e6db74">&#34;database system is ready to accept connections&#34;</span>).
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">WithOccurrence</span>(<span style="color:#ae81ff">2</span>).
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">WithStartupTimeout</span>(<span style="color:#ae81ff">5</span><span style="color:#f92672">*</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>),
+</span></span><span style="display:flex;"><span>		),
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">connStr</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">pgContainer</span>.<span style="color:#a6e22e">ConnectionString</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#e6db74">&#34;sslmode=disable&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">PostgreSQLContainer</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">PostgresContainer</span>: <span style="color:#a6e22e">pgContainer</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">ConnectionString</span>:  <span style="color:#a6e22e">connStr</span>,
+</span></span><span style="display:flex;"><span>	}, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>internal/common/testhelpers/migrations.go</code></p>
+<p>and the database migrations as well. both up</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">RunMigrationsUp</span>(<span style="color:#a6e22e">db</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">DB</span>) <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">driver</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">WithInstance</span>(<span style="color:#a6e22e">db</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">Config</span>{})
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">d</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">iofs</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">mojodojo</span>.<span style="color:#a6e22e">Migrations</span>, <span style="color:#e6db74">&#34;migrations&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">m</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">migrate</span>.<span style="color:#a6e22e">NewWithInstance</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;iofs&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">d</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;postgres&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">driver</span>,
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Up</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>and down</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">RunMigrationsDown</span>(<span style="color:#a6e22e">db</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">DB</span>) <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">driver</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">WithInstance</span>(<span style="color:#a6e22e">db</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">psqlMigrate</span>.<span style="color:#a6e22e">Config</span>{})
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">d</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">iofs</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">mojodojo</span>.<span style="color:#a6e22e">Migrations</span>, <span style="color:#e6db74">&#34;migrations&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">m</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">migrate</span>.<span style="color:#a6e22e">NewWithInstance</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;iofs&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">d</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;postgres&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">driver</span>,
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Down</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>this leaves are suite leaner and allows us to reuse the methods for all other suites we may add.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">DojoRepositoryTestSuite</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">Suite</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">db</span>          <span style="color:#f92672">*</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">DB</span> <span style="color:#75715e">// to interact directly with db
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">pgContainer</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testhelpers</span>.<span style="color:#a6e22e">PostgreSQLContainer</span> <span style="color:#75715e">// &lt;- now this comes from the testhelpers package
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">ctx</span>         <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>and the methods as well</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">SetupSuite</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">ctx</span> = <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">pgContainer</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">testhelpers</span>.<span style="color:#a6e22e">CreatePostgreSQLContainer</span>(<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">ctx</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#a6e22e">pg</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#a6e22e">pgContainer</span>.<span style="color:#a6e22e">ConnectionString</span>), <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">Config</span>{})
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">pgContainer</span> = <span style="color:#a6e22e">pgContainer</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span> = <span style="color:#a6e22e">db</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sqlDB</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">sqlDB</span>.<span style="color:#a6e22e">Ping</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">TearDownSuite</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">pgContainer</span>.<span style="color:#a6e22e">Terminate</span>(<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">ctx</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">SetupTest</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sqlDB</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">testhelpers</span>.<span style="color:#a6e22e">RunMigrationsUp</span>(<span style="color:#a6e22e">sqlDB</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">TearDownTest</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sqlDB</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">testhelpers</span>.<span style="color:#a6e22e">RunMigrationsDown</span>(<span style="color:#a6e22e">sqlDB</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">NoError</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>now since we are gonna extend the suite with more scenarios, it&rsquo;ll be helpful to include a method to clear the table of the entity that is being tested.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">suite</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DojoRepositoryTestSuite</span>) <span style="color:#a6e22e">Clear</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">suite</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Delete</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Dojo</span>{}, <span style="color:#e6db74">&#34;1=1&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
     </div>
     <footer class="content__footer"></footer>
 
@@ -79,11 +236,11 @@
 </div>
                 <hr>
                 <div class="aside__content">
-    
+    <p>testing: the real deal??</p>
     
         <p>
             
-            2024-09-18
+            2024-09-17
         </p>
     
 
@@ -97,7 +254,12 @@
     
 	    <hr>
 	    on this page:
-	    <nav id="TableOfContents"></nav>
+	    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#if-youre-running-rancher-desktop-its-too-late-part-2">if you&rsquo;re running rancher desktop it&rsquo;s too late part 2</a></li>
+    <li><a href="#introducing-test-helpers">introducing: test helpers</a></li>
+  </ol>
+</nav>
     
 
                 </div>
